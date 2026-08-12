@@ -1,0 +1,1222 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LogiPlan Pro // Otimização de Carga (Demo)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <style>
+    /* *** TEMA CORPORATIVO PROFISSIONAL (AZUL/GRAFITE) *** */
+    :root {
+      --color-primary: #0056b3; /* Azul Profundo */
+      --color-primary-light: #e6f0ff; /* Fundo de destaque suave */
+      --color-success: #28a745;
+      --color-background: #f0f4f8; /* Fundo Geral */
+      --color-card-bg: #ffffff;
+      --color-border: #d1dbe5;
+      --color-text-dark: #212529;
+      --color-text-muted: #6c757d;
+      --spacing-unit: 8px;
+      --color-danger: #dc3545;
+      --color-danger-light: #f8d7da;
+      --color-demo: #6f42c1;
+      --color-demo-light: #f1e9fb;
+      --font-main: 'Inter', sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: var(--font-main); margin: 0; padding: calc(2 * var(--spacing-unit)); line-height: 1.5; color: var(--color-text-dark); background-color: var(--color-background); }
+
+    /* 0. FAIXA DE MODO DEMONSTRAÇÃO */
+    .demo-banner {
+        display: flex; align-items: center; gap: 10px;
+        background: var(--color-demo-light); color: var(--color-demo);
+        border: 1px solid var(--color-demo); border-radius: 6px;
+        padding: 8px 14px; font-size: 13px; font-weight: 600;
+        margin-bottom: calc(2 * var(--spacing-unit));
+    }
+    .demo-banner i { font-size: 16px; }
+    .demo-banner .badge-tag {
+        background: var(--color-demo); color: #fff; font-size: 10px; font-weight: 800;
+        letter-spacing: 0.5px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;
+    }
+
+    /* 1. HEADER & TÍTULOS */
+    header {
+        display: flex; justify-content: space-between; align-items: center; gap: calc(2 * var(--spacing-unit)); flex-wrap: wrap;
+        margin-bottom: calc(3 * var(--spacing-unit)); padding-bottom: var(--spacing-unit); border-bottom: 3px solid var(--color-primary);
+    }
+    h1 { margin: 0; font-size: 28px; color: var(--color-primary); font-weight: 800; }
+    p.lead { margin: 3px 0 0; color: var(--color-text-muted); font-size: 14px; }
+    .header-actions { display: flex; gap: var(--spacing-unit); flex-wrap: wrap; }
+
+    /* 2. BOTÕES (Estilo Bootstrap Aprimorado) */
+    .btn {
+        padding: 10px 16px; border-radius: 6px; font-weight: 600; font-size: 13px; transition: all 0.2s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: var(--color-primary); border-color: var(--color-primary); }
+    .btn-primary:hover { background: #004085; border-color: #004085; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0, 86, 179, 0.2); }
+    .btn-secondary { background: var(--color-text-muted); border-color: var(--color-text-muted); }
+    .btn-secondary:hover { background: #5a6268; border-color: #5a6268; }
+    .btn-ghost { background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary); }
+    .btn-ghost:hover { background: var(--color-primary-light); color: var(--color-primary); }
+
+    /* 3. CARTÕES (Card Style) */
+    .card {
+        background: var(--color-card-bg); border: 1px solid var(--color-border); border-radius: 8px; padding: calc(1.5 * var(--spacing-unit));
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    /* 4. LAYOUT GRID */
+    .top-controls-group {
+        display: grid; grid-template-columns: 1.5fr 1fr auto;
+        gap: calc(2 * var(--spacing-unit)); margin-bottom: calc(3 * var(--spacing-unit)); align-items: stretch;
+    }
+    .main-layout-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: calc(2 * var(--spacing-unit)); margin-top: calc(2 * var(--spacing-unit));
+    }
+
+    /* 5. ESTATÍSTICAS */
+    .stats {
+        padding: calc(1.5 * var(--spacing-unit)); background: var(--color-primary-light); border: 1px solid var(--color-primary);
+        font-size: 13px; height: fit-content; min-width: 220px; max-width: 350px;
+    }
+    .stats strong { color: var(--color-primary); font-weight: 700; }
+    .stats p, .stats span { margin: 6px 0 0 0; }
+    .stats p { font-weight: 600; border-top: 1px dashed var(--color-border); padding-top: 6px; }
+
+    /* 6. INPUTS E CONTROLES */
+    label { font-weight: 600; font-size: 13px; color: var(--color-text-dark); display: block; margin-bottom: 4px; }
+    .input-group { display:flex; gap: var(--spacing-unit); margin-top: 4px; }
+    input[type="number"], input[type="text"], select {
+        padding: 8px 10px; border: 1px solid var(--color-border); border-radius: 4px; font-size: 13px; width: 100%;
+    }
+    .controls input[type="number"] { width: 100px; }
+
+    /* 7. VISUALIZAÇÃO 3D */
+    #plot-area { height: 75vh; }
+
+    /* 8. TABELA DE PRODUTOS (Mais Compacta) */
+    table { font-size: 12px; border-collapse: collapse; width: 100%; }
+    th, td { padding: 8px; border-bottom: 1px solid var(--color-border); vertical-align: middle; }
+    th { font-size: 10px; text-transform: uppercase; background-color: var(--color-primary-light); color: var(--color-primary); }
+
+    /* Inputs na tabela (compactos e sem borda aparente) */
+    #products_table input[type="number"], #products_table input[type="text"] {
+        padding: 4px;
+        font-size: 12px;
+        height: 28px;
+        border: 1px solid transparent;
+        transition: border-color 0.1s;
+    }
+    #products_table input[type="number"]:focus, #products_table input[type="text"]:focus {
+        border-color: var(--color-primary);
+        background-color: var(--color-primary-light);
+    }
+    #products_table input[name="code"] { width: 60px; text-align: center; }
+    #products_table input[name="description"] { width: 100%; min-width: 130px; }
+
+    /* Largura das colunas de quantidade/capacidade */
+    #products_table input[name="quantity_und"],
+    #products_table input[name="capacity_per_stack"],
+    #products_table input[name="max_stack"] { width: 60px; text-align: center; }
+
+    /* 9. AÇÕES DA LINHA (Ícones) — CORRIGIDO: botões antes ficavam com 12px de largura, ilegíveis */
+    .row-actions { white-space: nowrap; text-align: center; }
+    .row-actions button {
+        width: 32px; height: 28px; padding: 0; margin: 0 2px; border-radius: 4px;
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: background-color 0.15s;
+    }
+    .btn-icon-detail { color: var(--color-primary); background: none; border: none; }
+    .btn-icon-detail:hover { color: #fff; background: var(--color-primary); }
+    .btn-icon-edit { color: #856404; background: none; border: none; }
+    .btn-icon-edit:hover { color: #fff; background: #e0a800; }
+    .btn-icon-remove { color: var(--color-danger); background: none; border: none; }
+    .btn-icon-remove:hover { color: #fff; background: var(--color-danger); }
+
+    /* 10. RODAPÉ */
+    footer { font-size: 12px; color: var(--color-text-muted); margin-top: 24px; text-align: center; }
+
+    /* 11. SPINNER/LOADING */
+    .btn-loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+    .plot-loading-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255, 255, 255, 0.85);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+        color: var(--color-primary);
+        font-size: 1.2rem;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+
+    /* Responsividade */
+    @media (max-width: 1150px) {
+        .main-layout-grid { grid-template-columns: 1fr; }
+        .top-controls-group { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="demo-banner">
+    <i class="bi bi-play-circle-fill"></i>
+    <span class="badge-tag">Demo</span>
+    <span>Esta página roda em modo demonstrativo: os dados de produtos são carregados de uma amostra local (não há conexão com banco de dados). Use os botões abaixo para testar o planejamento de carga.</span>
+  </div>
+
+  <header>
+    <div>
+      <h1><i class="bi bi-truck-flatbed"></i> LogiPlan Pro</h1>
+      <p class="lead">Otimização 3D para Transporte e Armazenamento</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" id="plan-btn"><i class="bi bi-play-fill"></i> Gerar Planejamento</button>
+      <button class="btn btn-secondary" id="load-sample-btn"><i class="bi bi-database-fill"></i> Carregar Exemplo</button>
+      <button class="btn btn-secondary" id="clear-rows"><i class="bi bi-trash"></i> Limpar Dados</button>
+      <button class="btn btn-ghost" id="download-sample"><i class="bi bi-download"></i> Modelo CSV</button>
+    </div>
+  </header>
+
+  <div class="top-controls-group">
+    <div class="controls-section card">
+        <div class="controls">
+          <div style="flex-grow:1;">
+            <label for="container_type"><i class="bi bi-truck"></i> Tipo de Espaço/Veículo</label>
+            <select id="container_type" onchange="updateContainerDimensions(); planCargo();">
+                <option value="custom">Espaço Personalizado (99.999 Kg Limite)</option>
+                <option value="carreta">Carreta Simples (12.5x2.50x2.58m)</option>
+                <option value="vanderleia">Carreta Vanderleia (15.0x2.50x2.58m)</option>
+                <option value="truck">Caminhão Truck (8.0x2.32x2.10m)</option>
+                <option value="rodo" selected>Rodo-trem (2x 12.5x2.50x2.58m)</option>
+            </select>
+          </div>
+          <div style="flex-grow:1; margin-top: 10px;">
+            <label for="container_length"><i class="bi bi-box-seam"></i> Dimensões do Espaço (Comprimento / Largura / Altura em metros)</label>
+            <div class="input-group">
+              <input id="container_length" type="number" value="7.0" step="0.1" title="Comprimento (m)">
+              <input id="container_width" type="number" value="2.60" step="0.1" title="Largura (m)">
+              <input id="container_height" type="number" value="2.60" step="0.01" title="Altura (m)">
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="context-list-container">
+        <div id="context-list" class="card" style="padding: 10px 15px;">
+            <strong style="display: block; margin-bottom: 5px;"><i class="bi bi-info-circle"></i> Contextos de Uso:</strong>
+            <small class="text-muted">
+                <ul style="margin-bottom: 0;">
+                  <li>Veículo: Caminhão, Contêiner, Van.</li>
+                  <li>Armazém: Prateleira, Rack, Área de Picking.</li>
+                </ul>
+            </small>
+        </div>
+    </div>
+  </div>
+
+  <div class="main-layout-grid">
+
+    <div id="plot-area-container" style="position: relative;">
+        <div id="plot-area" class="card" style="padding: 0; min-height: 400px;"></div>
+        <div id="plot-loading-overlay" class="plot-loading-overlay" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Calculando...</span>
+            </div>
+            <span style="margin-left: 10px;">Calculando Cubagem 3D...</span>
+        </div>
+    </div>
+
+    <div class="form-and-stats-container">
+        <div class="form-column">
+            <form id="products_form" onsubmit="event.preventDefault(); planCargo();">
+
+                <div class="card" style="padding:0; overflow: hidden; border: 1px solid var(--color-border);">
+
+                    <div style="max-height: 500px; overflow-y: auto; overflow-x: auto;">
+                        <table id="products_table" aria-label="Produtos" style="width:100%; border-collapse: separate; border-spacing: 0;">
+                            <thead style="position: sticky; top: 0; background-color: var(--color-card-bg); z-index: 10;">
+                                <tr>
+                                    <th style="width:60px; border-bottom: 2px solid var(--color-border);">CÓD.</th>
+                                    <th style="width:120px; border-bottom: 2px solid var(--color-border);">DESCRIÇÃO</th>
+                                    <th style="width:80px; border-bottom: 2px solid var(--color-border);" title="informe a quantidade total em unidades">QTD.UND</th>
+                                    <th style="width:90px; border-bottom: 2px solid var(--color-border);" title="Quantidade que cabe em um palete">CAPACIDADE/PALETE</th>
+                                    <th style="width:90px; border-bottom: 2px solid var(--color-border);" title="Total de paletes deste material">TOTAL PALETES</th>
+                                    <th style="width:90px; border-bottom: 2px solid var(--color-border);" title="Máximo de Empilhamento Físico">EMPILHAMENTO MÁX</th>
+                                    <th style="width:110px; border-bottom: 2px solid var(--color-border);">AÇÕES</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+                    <button type="button" class="btn btn-ghost" onclick="addRow()"><i class="bi bi-plus-circle"></i> Adicionar Item</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-grid-3x3-gap"></i> Executar Planejamento</button>
+                </div>
+                <p class="text-muted small" style="margin-top:8px;"><i class="bi bi-lightbulb"></i> Dica: digite um dos códigos de exemplo no campo <strong>CÓD.</strong> (ex.: <code>P001</code>, <code>C002</code>, <code>PAL-A</code>) para ver o preenchimento automático simulado.</p>
+            </form>
+        </div>
+    </div>
+
+  </div>
+
+
+  <footer>LogiPlan Pro v3.5 — Demo | Desenvolvido para máxima eficiência logística.</footer>
+
+  <div class="modal fade" id="editPalletModal" tabindex="-1" aria-labelledby="editPalletModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPalletModalLabel"><i class="bi bi-rulers"></i> Editar Dimensões do Bloco de Cubagem / Palete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="pallet-edit-form">
+            <input type="hidden" id="editing-row-id">
+
+            <div class="mb-3">
+              <label for="modal-code" class="form-label">Item:</label>
+              <input type="text" class="form-control" id="modal-code" disabled>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label for="modal-pallet-length" class="form-label">Comprimento (L) em m:</label>
+                <input type="number" step="0.01" min="0.01" class="form-control" id="modal-pallet-length" required>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="modal-pallet-width" class="form-label">Largura (W) em m:</label>
+                <input type="number" step="0.01" min="0.01" class="form-control" id="modal-pallet-width" required>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="modal-pallet-height" class="form-label">Altura (H) em m:</label>
+                <input type="number" step="0.01" min="0.01" class="form-control" id="modal-pallet-height" required>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="modal-und-weight" class="form-label"><i class="bi bi-currency-dollar"></i> Peso por Unidade (Kg):</label>
+                <input type="number" step="1" min="1" class="form-control" id="modal-und-weight" required>
+              </div>
+            </div>
+            <p class="text-info small"><i class="bi bi-lightbulb"></i> Estas são as dimensões e peso de **uma única unidade de cubagem** (Palete completo ou Pilha de Caixas).</p>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="savePalletDimensions()"><i class="bi bi-save"></i> Salvar e Atualizar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="viewPalletModal" tabindex="-1" aria-labelledby="viewPalletModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewPalletModalLabel"><i class="bi bi-box"></i> Detalhes do Bloco de Cubagem</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="pallet-details-content">
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.0.min.js"></script>
+
+    <script>
+    // --- DEFINIÇÕES DE VARIÁVEIS PARA USO DO JAVASCRIPT/PLOTLY ---
+    const PRIMARY_COLOR = '#007bff';
+    const BORDER_COLOR = '#444';
+    const TEXT_DARK_COLOR = '#212529';
+    const SUCCESS_COLOR = '#28a745';
+    const DANGER_COLOR = '#dc3545';
+    const EPSILON = 1e-6;
+    const RESOLUTION_STEP = 0.05;
+
+    let rowCounter = 0;
+    const DEFAULT_PALLET_H = 1.2;
+    const DEFAULT_UND_WEIGHT = 10;
+
+    // --- MODO DEMONSTRAÇÃO: catálogo local simulando uma base de produtos ---
+    // Em produção, isso seria substituído por uma chamada real à API/banco de dados.
+    const DEMO_PRODUCT_CATALOG = {
+      "P001": { description: "Palete de Produtos (1 Palete/Pilha)", pallet_length_m: 1.20, pallet_width_m: 1.00, pallet_height_m: 1.75, max_stack: 1, capacity_per_stack: 1, und_weight_kg: 950 },
+      "C002": { description: "Caixa Módulos Pequenos", pallet_length_m: 1.15, pallet_width_m: 1.43, pallet_height_m: 0.80, max_stack: 2, capacity_per_stack: 100, und_weight_kg: 5 },
+      "PAL-A": { description: "Palete de Produtos (1 Palete/Pilha)", pallet_length_m: 1.20, pallet_width_m: 1.00, pallet_height_m: 1.75, max_stack: 1, capacity_per_stack: 1, und_weight_kg: 950 },
+      "CX-B": { description: "Caixa Módulos Pequenos (100 UND/Pilha)", pallet_length_m: 1.15, pallet_width_m: 1.43, pallet_height_m: 0.80, max_stack: 2, capacity_per_stack: 100, und_weight_kg: 5 },
+      "VAZIO": { description: "Palete Vazio (1 UND/Pilha)", pallet_length_m: 1.20, pallet_width_m: 1.00, pallet_height_m: 0.15, max_stack: 15, capacity_per_stack: 1, und_weight_kg: 20 }
+    };
+
+    // Dimensões de referência para veículos (L/W/H em metros) E CARGA MÁXIMA
+    const VEHICLE_DIMENSIONS = {
+        'custom': { L: 20.0, W: 20.0, H: 20.0, max_weight_kg: 99999 },
+        'carreta': { L: 12.5, W: 2.50, H: 2.58, max_weight_kg: 25000 },
+        'vanderleia': { L: 15.0, W: 2.50, H: 2.58, max_weight_kg: 30000 },
+        'truck': { L: 8.0, W: 2.32, H: 2.10, max_weight_kg: 14000 },
+        'rodo': { L: 12.5, W: 2.50, H: 2.58, count: 2, gap: 1.0, max_weight_kg: 45000 }
+    };
+
+    // Função para controlar o estado de carregamento (UX)
+    function setLoading(isLoading) {
+        const btn = document.getElementById("plan-btn");
+        const overlay = document.getElementById("plot-loading-overlay");
+        const plotArea = document.getElementById('plot-area');
+        const submitBtn = document.querySelector('button[type="submit"]');
+
+        const targetBtn = btn || submitBtn;
+
+        if (isLoading) {
+            targetBtn.setAttribute('disabled', 'disabled');
+            targetBtn.classList.add('btn-loading');
+            targetBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Calculando...';
+
+            if (overlay) overlay.style.display = 'flex';
+
+            if (typeof Plotly !== 'undefined') {
+                 try { Plotly.purge('plot-area'); } catch (e) {}
+            }
+
+            plotArea.innerHTML = '<div style="text-align:center; padding-top: 50%; color: var(--color-primary);">Preparando cálculo...</div>';
+
+        } else {
+            targetBtn.removeAttribute('disabled');
+            targetBtn.classList.remove('btn-loading');
+            targetBtn.innerHTML = '<i class="bi bi-play-fill"></i> Gerar Planejamento';
+            if (overlay) overlay.style.display = 'none';
+        }
+    }
+
+
+    function nRandomColor(i){
+      const palette = ["#00bcd4","#ffeb3b","#8bc34a","#f44336","#9c27b0","#ff9800","#03a9f4","#e91e63","#607d8b","#cddc39"];
+      return palette[i % palette.length];
+    }
+
+    // --- Funções de Atualização de Dimensões ---
+
+    function updateContainerDimensions() {
+        const type = document.getElementById("container_type").value;
+        const dims = VEHICLE_DIMENSIONS[type];
+        const lengthInput = document.getElementById("container_length");
+        const widthInput = document.getElementById("container_width");
+        const heightInput = document.getElementById("container_height");
+
+        if (type === 'custom') {
+            lengthInput.removeAttribute('disabled');
+            widthInput.removeAttribute('disabled');
+            heightInput.removeAttribute('disabled');
+            if (dims) {
+                lengthInput.value = dims.L;
+                widthInput.value = dims.W;
+                heightInput.value = dims.H;
+            }
+        } else {
+            const L_value = dims.L;
+
+            lengthInput.value = L_value;
+            widthInput.value = dims.W;
+            heightInput.value = dims.H;
+            lengthInput.setAttribute('disabled', 'disabled');
+            widthInput.setAttribute('disabled', 'disabled');
+            heightInput.setAttribute('disabled', 'disabled');
+        }
+    }
+
+
+    // --- Funções de Exibição de Detalhes e Linhas ---
+    function buildCubageWindowContent(row) {
+      const get = n => row.querySelector(`[name="${n}"]`).value;
+      const code = get("code") || 'N/A';
+      const desc = get("description") || 'Sem Descrição';
+
+      const totalStacks = Number(row.querySelector('[name="quantity_total_stacks"]').value).toFixed(0);
+      const L = Number(get("pallet_length_m")).toFixed(2);
+      const W = Number(get("pallet_width_m")).toFixed(2);
+      const H = Number(get("pallet_height_m")).toFixed(2);
+
+      const undWeight = Number(get("und_weight_kg")).toFixed(0);
+      const blockWeight = Number(get("max_weight_kg")).toFixed(0);
+
+      const undTotal = Number(get("quantity_und")||0).toFixed(0);
+      const cap = get("capacity_per_stack");
+      const maxStack = get("max_stack");
+      const totalHeight = (Number(H) * Number(maxStack)).toFixed(2);
+
+      return `
+        <div style="font-family: 'Inter', sans-serif; color: ${TEXT_DARK_COLOR};">
+          <p><strong>Cód. / Descrição:</strong> ${code} / ${desc}</p>
+          <hr style="border-top: 1px solid ${BORDER_COLOR}; margin: 15px 0;">
+
+          <div class="row">
+              <div class="col-md-6 mb-3">
+                  <h3 style="margin-top: 0; font-size: 14px; color: ${PRIMARY_COLOR}; font-weight: 700;"><i class="bi bi-arrows-angle-expand"></i> Dimensões do Bloco (m)</h3>
+                  <ul style="list-style-type: none; padding-left: 0; font-size: 14px;">
+                      <li>Comprimento (L): <strong class="text-primary">${L} m</strong></li>
+                      <li>Largura (W): <strong class="text-primary">${W} m</strong></li>
+                      <li>Altura do Bloco (H): <strong class="text-primary">${H} m</strong></li>
+                  </ul>
+              </div>
+              <div class="col-md-6 mb-3">
+                  <h3 style="margin-top: 0; font-size: 14px; color: ${PRIMARY_COLOR}; font-weight: 700;"><i class="bi bi-stack"></i> Parâmetros Logísticos</h3>
+                  <ul style="list-style-type: none; padding-left: 0; font-size: 14px;">
+                      <li>Peso por Unidade: <strong class="text-primary">${undWeight} Kg</strong></li>
+                      <li>Peso Calculado do Bloco: <strong class="text-primary">${blockWeight} Kg</strong></li>
+                      <li>Qtd. Total de Unidades: <strong class="text-success">${undTotal} und.</strong></li>
+                      <li>Unidades por Pilha/Bloco: <strong class="text-success">${cap} und.</strong></li>
+                      <li>Total de Pilhas para Cubagem: <strong class="text-success">${totalStacks}</strong></li>
+                      <li>Máximo de Pilhas Físicas: <strong class="text-success">${maxStack}</strong></li>
+                      <li>Altura Máxima (Teórica): <strong class="text-success">${totalHeight} m</strong></li>
+                  </ul>
+              </div>
+          </div>
+          <p class="text-muted small mt-3">Estas informações definem o volume e as regras de empilhamento para o cálculo 3D.</p>
+        </div>
+      `;
+    }
+
+    function showCubageDetails(buttonElement) {
+      const row = buttonElement.closest('tr');
+      const content = buildCubageWindowContent(row);
+
+      document.getElementById('pallet-details-content').innerHTML = content;
+
+      const modalElement = document.getElementById('viewPalletModal');
+      const modalInstance = new bootstrap.Modal(modalElement);
+      modalInstance.show();
+    }
+
+    function addRow(prefill){
+      const tbody = document.querySelector("#products_table tbody");
+      const tr = document.createElement("tr");
+      rowCounter++;
+      tr.id = `row-${rowCounter}`;
+
+      prefill = prefill || {};
+
+      const pallet_l = prefill.pallet_length_m || 1.20;
+      const pallet_w = prefill.pallet_width_m || 1.00;
+      const pallet_h = prefill.pallet_height_m || DEFAULT_PALLET_H;
+      const und_weight_kg = prefill.und_weight_kg || DEFAULT_UND_WEIGHT;
+
+      const quantity_und = Number(prefill.quantity_und || 0);
+      const capacity_per_stack = Number(prefill.capacity_per_stack || 1);
+
+      const calculated_block_weight = und_weight_kg * capacity_per_stack;
+      const max_weight_kg = prefill.max_weight_kg || calculated_block_weight;
+
+      const calculated_stacks = capacity_per_stack > 0 ? Math.ceil(quantity_und / capacity_per_stack) : 0;
+
+      tr.innerHTML = `
+        <td><input name="code" value="${prefill.code||''}" type="text" onchange="fetchProductDetails(this)" placeholder="ex: P001"></td>
+        <td><input name="description" value="${prefill.description||''}" type="text"></td>
+
+        <td><input name="quantity_und" type="number" value="${quantity_und}" min="0" onchange="planCargo()"></td>
+
+        <td class="dim-column">
+          <input name="capacity_per_stack" type="number" value="${capacity_per_stack}" min="1" onchange="planCargo()">
+        </td>
+
+        <td class="dim-column">
+          <strong name="calculated_stacks" style="display:block; text-align:center; font-weight:700; color: ${PRIMARY_COLOR}">${calculated_stacks}</strong>
+          <input name="quantity_total_stacks" type="hidden" value="${calculated_stacks}">
+        </td>
+
+        <td class="dim-column">
+          <input name="max_stack" type="number" value="${prefill.max_stack||1}" min="1" onchange="planCargo()">
+        </td>
+
+        <td class="dim-pallet" style="display:none;"><input name="und_weight_kg" type="hidden" value="${und_weight_kg}" step="1"></td>
+
+        <td class="dim-pallet" style="display:none;"><input name="pallet_length_m" type="hidden" value="${pallet_l}" step="0.01"></td>
+        <td class="dim-pallet" style="display:none;"><input name="pallet_width_m" type="hidden" value="${pallet_w}" step="0.01"></td>
+        <td class="dim-pallet" style="display:none;"><input name="pallet_height_m" type="hidden" value="${pallet_h}" step="0.01"></td>
+
+        <td class="dim-pallet" style="display:none;"><input name="max_weight_kg" type="hidden" value="${max_weight_kg}" step="1"></td>
+
+        <td class="row-actions">
+          <button type="button" class="btn-icon-detail" title="Ver Detalhes da Cubagem" onclick="showCubageDetails(this)"><i class="bi bi-info-circle"></i></button>
+          <button type="button" class="btn-icon-edit" title="Editar Dimensões do Item"
+              data-bs-toggle="modal" data-bs-target="#editPalletModal"
+              onclick="loadPalletDimensionsToModal(this)"><i class="bi bi-rulers"></i>
+          </button>
+          <button type="button" onclick="this.closest('tr').remove(); planCargo();" class="btn-icon-remove" title="Remover Item"><i class="bi bi-x-circle-fill"></i></button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    /**
+     * MODO DEMONSTRAÇÃO: busca detalhes do produto em um catálogo local (DEMO_PRODUCT_CATALOG),
+     * simulando a resposta de uma API real, sem qualquer chamada de rede.
+     */
+    function fetchProductDetails(inputElement) {
+        const code = inputElement.value.trim().toUpperCase();
+        const row = inputElement.closest('tr');
+
+        if (!code) return;
+
+        const setRowValue = (name, value) => {
+            const el = row.querySelector(`[name="${name}"]`);
+            if (el) el.value = value;
+        };
+
+        inputElement.style.backgroundColor = '#fff3cd';
+
+        // Simula uma pequena latência de "busca", como uma API real teria
+        setTimeout(() => {
+            const data = DEMO_PRODUCT_CATALOG[code];
+
+            if (data) {
+                setRowValue('description', data.description || 'Produto Sem Descrição');
+                setRowValue('pallet_length_m', Number(data.pallet_length_m || 1.20).toFixed(2));
+                setRowValue('pallet_width_m', Number(data.pallet_width_m || 1.00).toFixed(2));
+                setRowValue('pallet_height_m', Number(data.pallet_height_m || 1.20).toFixed(2));
+                setRowValue('capacity_per_stack', Number(data.capacity_per_stack || 1));
+                setRowValue('max_stack', Number(data.max_stack || 1));
+                setRowValue('und_weight_kg', Number(data.und_weight_kg || 10));
+
+                planCargo();
+                inputElement.style.backgroundColor = '#d4edda';
+            } else {
+                inputElement.style.backgroundColor = '#f8d7da';
+                console.warn(`[Demo] Código "${code}" não encontrado no catálogo de exemplo (tente P001, C002, PAL-A, CX-B ou VAZIO).`);
+            }
+            setTimeout(() => { inputElement.style.backgroundColor = ''; }, 900);
+        }, 250);
+    }
+
+
+    // --- Funções de Interação com o Modal ---
+    function loadPalletDimensionsToModal(buttonElement) {
+        const row = buttonElement.closest('tr');
+        const rowId = row.id;
+
+        const code = row.querySelector('[name="code"]').value;
+
+        const length = row.querySelector('[name="pallet_length_m"]').value;
+        const width = row.querySelector('[name="pallet_width_m"]').value;
+        const height = row.querySelector('[name="pallet_height_m"]').value;
+        const undWeight = row.querySelector('[name="und_weight_kg"]').value;
+
+        document.getElementById('editing-row-id').value = rowId;
+        document.getElementById('modal-code').value = code;
+        document.getElementById('modal-pallet-length').value = length;
+        document.getElementById('modal-pallet-width').value = width;
+        document.getElementById('modal-pallet-height').value = height;
+        document.getElementById('modal-und-weight').value = undWeight;
+    }
+
+    function savePalletDimensions() {
+        const rowId = document.getElementById('editing-row-id').value;
+        const row = document.getElementById(rowId);
+
+        if (!row) {
+            alert("Erro: Linha da tabela não encontrada.");
+            return;
+        }
+
+        const newLength = document.getElementById('modal-pallet-length').value;
+        const newWidth = document.getElementById('modal-pallet-width').value;
+        const newHeight = document.getElementById('modal-pallet-height').value;
+        const newUndWeight = document.getElementById('modal-und-weight').value;
+
+        if (Number(newLength) <= 0 || Number(newWidth) <= 0 || Number(newHeight) <= 0 || Number(newUndWeight) <= 0) {
+            alert("Erro: Todas as dimensões e o peso por unidade devem ser maiores que zero.");
+            return;
+        }
+
+        row.querySelector('[name="pallet_length_m"]').value = newLength;
+        row.querySelector('[name="pallet_width_m"]').value = newWidth;
+        row.querySelector('[name="pallet_height_m"]').value = newHeight;
+        row.querySelector('[name="und_weight_kg"]').value = newUndWeight;
+
+        const modalElement = document.getElementById('editPalletModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+        modalInstance.hide();
+
+        planCargo();
+    }
+
+    // --- Funções de Dados e Lógica Principal ---
+    function clearRows(){ document.querySelector("#products_table tbody").innerHTML = ""; planCargo(); }
+
+    function getProductsFromTable(){
+        const rows = [...document.querySelectorAll("#products_table tbody tr")];
+        return rows.map(r=>{
+            const get = n => r.querySelector(`[name="${n}"]`).value;
+
+            const quantity_und = Number(get("quantity_und")||0);
+            const capacity_per_stack = Number(get("capacity_per_stack")||1);
+            const und_weight_kg = Number(get("und_weight_kg")||0);
+
+            const calculated_stacks = capacity_per_stack > 0 ? Math.ceil(quantity_und / capacity_per_stack) : 0;
+            const calculated_block_weight = und_weight_kg * capacity_per_stack;
+
+            r.querySelector('[name="calculated_stacks"]').textContent = calculated_stacks;
+            r.querySelector('[name="quantity_total_stacks"]').value = calculated_stacks;
+            r.querySelector('[name="max_weight_kg"]').value = calculated_block_weight;
+
+            return {
+                code: get("code"), description: get("description"),
+                quantity: calculated_stacks,
+                capacity_per_stack: capacity_per_stack,
+
+                pallet_length_m: Number(get("pallet_length_m")||1),
+                pallet_width_m: Number(get("pallet_width_m")||1),
+                pallet_height_m: Number(get("pallet_height_m")||1),
+                max_stack: Math.max(1, Number(get("max_stack")||1)),
+                max_weight_kg: Number(calculated_block_weight)
+            };
+        }).filter(p => p.quantity > 0);
+    }
+
+    // Dados de amostra usados como carga inicial da demonstração
+    function loadSampleRows(){
+      clearRows();
+      const sample = [
+        {
+          code: "PAL-A",
+          description: "Palete de Produtos (1 Palete/Pilha)",
+          quantity_und: 10,
+          capacity_per_stack: 1,
+          pallet_length_m: 1.20,
+          pallet_width_m: 1.00,
+          pallet_height_m: 1.75,
+          max_stack: 1,
+          und_weight_kg: 950,
+          max_weight_kg: 950
+        },
+        {
+          code: "CX-B",
+          description: "Caixa Módulos Pequenos (100 UND/Pilha)",
+          quantity_und: 1000,
+          capacity_per_stack: 100,
+          pallet_length_m: 1.15,
+          pallet_width_m: 1.43,
+          pallet_height_m: 0.80,
+          max_stack: 2,
+          und_weight_kg: 5,
+          max_weight_kg: 500
+        },
+        {
+          code: "VAZIO",
+          description: "Palete Vazio (1 UND/Pilha)",
+          quantity_und: 20,
+          capacity_per_stack: 1,
+          pallet_length_m: 1.20,
+          pallet_width_m: 1.00,
+          pallet_height_m: 0.15,
+          max_stack: 15,
+          und_weight_kg: 20,
+          max_weight_kg: 20
+        }
+      ];
+
+      sample.forEach(s=>addRow(s));
+      planCargo();
+    }
+
+    // --- Funções de Cubagem (Lógica 3D) ---
+    function generatePalletStacks(products, H_container, h_pallet_default){
+      const stacks = [];
+      products.forEach(p=>{
+        const totalStacksToPlace = Math.max(0, Number(p.quantity));
+        if(totalStacksToPlace <= 0) return;
+
+        const L = Number(p.pallet_length_m);
+        const W = Number(p.pallet_width_m);
+        const H_block = Number(p.pallet_height_m) > 0 ? Number(p.pallet_height_m) : h_pallet_default;
+        const maxStackTheoretical = Math.max(1, Number(p.max_stack));
+
+        const maxPhysicalStack = Math.floor((H_container + EPSILON) / H_block);
+        const actualMaxStack = Math.max(1, Math.min(maxStackTheoretical, maxPhysicalStack));
+
+        let remainingStacks = totalStacksToPlace;
+        while(remainingStacks > 0){
+          const stackSize = Math.min(remainingStacks, actualMaxStack);
+          stacks.push({
+            code: p.code, description: p.description,
+            length_m: L, width_m: W,
+            singleHeight: H_block,
+            stackCount: stackSize,
+            blockHeight: H_block * stackSize,
+            max_weight_kg: p.max_weight_kg
+          });
+          remainingStacks -= stackSize;
+        }
+      });
+      stacks.sort((a,b)=> b.blockHeight - a.blockHeight || (b.length_m*b.width_m) - (a.length_m*a.width_m));
+      return stacks;
+    }
+
+    function packStacksInArea(stacks, container){
+      const L = Number(container.length), W = Number(container.width), H = Number(container.height);
+      const placements = [], leftovers = [];
+      const occupied = [];
+      const step = RESOLUTION_STEP;
+
+      function tryOrientation(blockL, blockW) {
+          for(let y=0; y <= W - blockW + EPSILON; y += step){
+              for(let x=0; x <= L - blockL + EPSILON; x += step){
+                  const r = {x:x, y:y, l:blockL, w:blockW};
+                  const overlap = occupied.some(o =>
+                      !(r.x + r.l <= o.x + EPSILON ||
+                        o.x + o.l <= r.x + EPSILON ||
+                        r.y + r.w <= o.y + EPSILON ||
+                        o.y + o.w <= r.y + EPSILON)
+                  );
+                  if(!overlap){
+                      return {x:x, y:y};
+                  }
+              }
+          }
+          return null;
+      }
+
+      function findPositionForBlock(block){
+        if(block.blockHeight > H + EPSILON) return null;
+
+        let bestPos = tryOrientation(block.length_m, block.width_m);
+        let orientation = {l: block.length_m, w: block.width_m};
+
+        if (!bestPos && Math.abs(block.length_m - block.width_m) > EPSILON) {
+            const rotatedPos = tryOrientation(block.width_m, block.length_m);
+            if (rotatedPos) {
+                bestPos = rotatedPos;
+                orientation = {l: block.width_m, w: block.length_m};
+            }
+        }
+
+        return bestPos ? {...bestPos, ...orientation} : null;
+      }
+
+      stacks.slice().forEach((blk)=>{
+        const pos = findPositionForBlock(blk);
+        if(pos){
+          placements.push({
+            id: placements.length + 1, code: blk.code, description: blk.description,
+            x: pos.x, y: pos.y, z: 0,
+            length_m: pos.l,
+            width_m: pos.w,
+            singleHeight: blk.singleHeight,
+            height_m: blk.blockHeight,
+            stackCount: blk.stackCount,
+            max_weight_kg: blk.max_weight_kg,
+            color: nRandomColor(placements.length)
+          });
+          occupied.push({x: pos.x, y: pos.y, l: pos.l, w: pos.w});
+        } else {
+          leftovers.push(blk);
+        }
+      });
+      return {placements, leftovers};
+    }
+
+    function adjustColor(hex, percent) {
+      let R = parseInt(hex.substring(1, 3), 16); let G = parseInt(hex.substring(3, 5), 16); let B = parseInt(hex.substring(5, 7), 16);
+      R = parseInt(R * (1 + percent)); G = parseInt(G * (1 + percent)); B = parseInt(B * (1 + percent));
+      R = (R < 255) ? R : 255; G = (G < 255) ? G : 255; B = (B < 255) ? B : 255;
+      const toHex = c => c.toString(16).length == 1 ? "0" + c.toString(16) : c.toString(16);
+      return "#" + toHex(R) + toHex(G) + toHex(B);
+    }
+
+    function renderBlocks(placements, baseOffset = { x: 0, y: 0, z: 0 }){
+        const traces = [];
+
+        const balancedLighting = {
+            ambient: 0.3,
+            diffuse: 0.7,
+            specular: 0.1,
+            roughness: 0.5,
+            fresnel: 0.1,
+            lightposition: {
+                x: 100,
+                y: 100,
+                z: 100
+            }
+        };
+
+        placements.forEach((p, stackIndex)=>{
+            const palletHeightSingle = p.singleHeight;
+            const baseL = p.length_m;
+            const baseW = p.width_m;
+            const startX = p.x + baseOffset.x;
+            const startY = p.y + baseOffset.y;
+            const groupColor = p.color;
+
+            for(let i = 0; i < p.stackCount; i++){
+                const z = i * palletHeightSingle + baseOffset.z;
+                const colorVariation = i % 2 === 0 ? groupColor : adjustColor(groupColor, 0.1);
+
+                const vx = [startX, startX+baseL, startX+baseL, startX, startX, startX+baseL, startX+baseL, startX];
+                const vy = [startY, startY, startY+baseW, startY+baseW, startY, startY, startY+baseW, startY+baseW];
+                const vz = [z, z, z, z, z+palletHeightSingle, z+palletHeightSingle, z+palletHeightSingle, z+palletHeightSingle];
+
+                const I = [0, 0, 4, 4, 0, 0, 1, 1, 0, 0, 3, 3];
+                const J = [2, 3, 5, 6, 3, 7, 2, 6, 1, 5, 2, 6];
+                const K = [1, 2, 6, 7, 7, 4, 6, 5, 5, 4, 6, 7];
+
+                const hovertext = `${p.description} | Bloco ${i + 1}/${p.stackCount} (Alt: ${palletHeightSingle.toFixed(2)}m) - Pilha Alt: ${p.height_m.toFixed(2)}m | Peso: ${p.max_weight_kg} kg`;
+
+                traces.push({
+                    type:'mesh3d',
+                    x:vx, y:vy, z:vz, i:I, j:J, k:K,
+                    opacity:1.0,
+                    cullfaces: 'none',
+                    flatshading:true,
+                    hovertext: hovertext,
+                    hoverinfo:'text',
+                    color: colorVariation,
+                    name: p.code,
+                    showlegend: i === 0,
+
+                    lighting: balancedLighting,
+                    lightposition: balancedLighting.lightposition
+                });
+
+                if(i === Math.floor(p.stackCount/2)) {
+                     traces.push({
+                         type: 'scatter3d',
+                         mode: 'text',
+                         x: [startX + baseL / 2],
+                         y: [startY + baseW / 2],
+                         z: [z + palletHeightSingle / 2],
+                         text: [p.code],
+                         textfont: { color: '#000000', size: 9, family: 'Inter, sans-serif' },
+                         showlegend: false,
+                         hoverinfo: 'none'
+                     });
+                 }
+            }
+        });
+        return traces;
+    }
+
+    function containerWireframe(L,W,H, color = PRIMARY_COLOR, name = 'Container', offset = {x:0, y:0, z:0}){
+        const x_off = offset.x, y_off = offset.y, z_off = offset.z;
+        const corners=[
+            [x_off,y_off,z_off],
+            [L+x_off,y_off,z_off],
+            [L+x_off,W+y_off,z_off],
+            [x_off,W+y_off,z_off],
+            [x_off,y_off,H+z_off],
+            [L+x_off,y_off,H+z_off],
+            [L+x_off,W+y_off,H+z_off],
+            [x_off,W+y_off,H+z_off]
+        ];
+        const segs=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+        const xs=[], ys=[], zs=[];
+        segs.forEach(s=>{ xs.push(corners[s[0]][0], corners[s[1]][0], NaN); ys.push(corners[s[0]][1], corners[s[1]][1], NaN); zs.push(corners[s[0]][2], corners[s[1]][2], NaN); });
+
+        let traces = [];
+
+        traces.push({
+            type:'scatter3d', x:xs, y:ys, z:zs, mode:'lines',
+            line:{width:4,color:color, dash:'solid'},
+            hoverinfo:'name', name:name, showlegend:false
+        });
+
+        traces.push({
+            type: 'mesh3d',
+            x: [x_off, L+x_off, L+x_off, x_off],
+            y: [y_off, y_off, W+y_off, W+y_off],
+            z: [z_off, z_off, z_off, z_off],
+            i: [0, 0], j: [1, 2], k: [2, 3],
+            color: adjustColor(color, -0.4),
+            opacity: 0.1,
+            hoverinfo: 'none',
+            showlegend: false,
+            lighting: { ambient: 0.1, diffuse: 0.7, specular: 0.2, roughness: 0.5, fresnel: 0.1 },
+            lightposition: { x: 100, y: 200, z: 0 }
+        });
+
+        return traces;
+    }
+
+    function renderRodotrem3D(placements1, placements2, finalLeftovers, dims) {
+        const L_semi = dims.L, W = dims.W, H = dims.H, gap = dims.gap;
+        const L_total_visual = (2 * L_semi) + gap;
+        let allTraces = [];
+        const offset2_X = L_semi + gap;
+
+        allTraces.push(...containerWireframe(L_semi, W, H, PRIMARY_COLOR, 'Semirreboque 1'));
+        allTraces.push(...renderBlocks(placements1, { x: 0, y: 0, z: 0 }));
+
+        allTraces.push(...containerWireframe(L_semi, W, H, PRIMARY_COLOR, 'Semirreboque 2', {x: offset2_X, y: 0, z: 0}));
+        allTraces.push(...renderBlocks(placements2, { x: offset2_X, y: 0, z: 0 }));
+
+        const allPlacements = [...placements1, ...placements2];
+
+        if(finalLeftovers.length){
+          const lx = [], ly = [], lz = [], texts = [];
+          const L_axis = L_total_visual * 1.05;
+          finalLeftovers.forEach((b,i)=>{
+            lx.push(L_axis + 0.5);
+            ly.push(W/2);
+            lz.push(H - (i * 0.1));
+            texts.push(`${b.code} (Bloqueado: ${b.stackCount} blocos - Alt: ${b.blockHeight.toFixed(2)}m)`);
+          });
+          allTraces.push({type:'scatter3d', mode:'markers+text', x:lx, y:ly, z:lz, text:texts, marker:{size:6,color: DANGER_COLOR}, textposition:'middle right', name:'Sobras',
+             textfont: { color: TEXT_DARK_COLOR, size: 10, family: 'Inter, sans-serif' }
+          });
+        }
+
+        const L_axis_max = L_total_visual + (finalLeftovers.length > 0 ? 1 : 0);
+        const maxDim = Math.max(L_axis_max, W, H) * 1.1;
+        const aspect = {x:L_axis_max/maxDim, y:W/maxDim, z:H/maxDim};
+        const layout = {
+            scene: {
+                aspectmode:'manual', aspectratio:aspect,
+                xaxis:{title:{text:'Comprimento (m)', font:{color:TEXT_DARK_COLOR}}, showgrid:false, zeroline:false, backgroundcolor:'transparent', tickfont:{color:TEXT_DARK_COLOR}, range:[0,L_axis_max]},
+                yaxis:{title:{text:'Largura (m)', font:{color:TEXT_DARK_COLOR}}, showgrid:false, zeroline:false, backgroundcolor:'transparent', tickfont:{color:TEXT_DARK_COLOR}, range:[0,W]},
+                zaxis:{title:{text:'Altura (m)', font:{color:TEXT_DARK_COLOR}}, showgrid:false, zeroline:false, backgroundcolor:'transparent', tickfont:{color:TEXT_DARK_COLOR}, range:[0,H]},
+                camera: {
+                    eye: {x: 1.5, y: 1.5, z: 0.8},
+                    center: {x: 0, y: 0, z: -0.1},
+                    up: {x: 0, y: 0, z: 1}
+                }
+            },
+            margin:{l:0,r:0,t:20,b:0},
+            paper_bgcolor: '#FFFFFF',
+            plot_bgcolor: '#FFFFFF',
+            font: {
+                color: TEXT_DARK_COLOR,
+                family: 'Inter, sans-serif'
+            },
+            dragmode: 'turntable'
+        };
+
+        if (typeof Plotly !== 'undefined') {
+            Plotly.newPlot('plot-area', allTraces, layout, {responsive:true});
+        }
+
+        return {placements: allPlacements, leftovers: finalLeftovers};
+    }
+
+    function renderContainer3D(packingResult, container) {
+        const {placements, leftovers} = packingResult;
+        const L = container.length, W = container.width, H = container.height;
+        let traces = [];
+        traces.push(...containerWireframe(L, W, H));
+        traces.push(...renderBlocks(placements));
+
+        if(leftovers.length){
+          const lx = [], ly = [], lz = [], texts = [];
+          const L_visual = L * 1.1 + (leftovers.length > 0 ? 1 : 0);
+          leftovers.forEach((b,i)=>{
+            lx.push(L_visual + 0.5);
+            ly.push(W/2);
+            lz.push(H - (i * 0.1));
+            texts.push(`${b.code} (Bloqueado: ${b.stackCount} blocos - Alt: ${b.blockHeight.toFixed(2)}m)`);
+          });
+          traces.push({type:'scatter3d', mode:'markers+text', x:lx, y:ly, z:lz, text:texts, marker:{size:6,color: DANGER_COLOR}, textposition:'middle right', name:'Sobras',
+             textfont: { color: TEXT_DARK_COLOR, size: 10, family: 'Inter, sans-serif' }
+          });
+        }
+
+        const L_axis_max = L * 1.1 + (leftovers.length > 0 ? 1.5 : 0);
+        const maxDim = Math.max(L_axis_max, W, H) * 1.1;
+        const aspect = {x:L_axis_max/maxDim, y:W/maxDim, z:H/maxDim};
+
+        const layout = {
+          scene: {
+            aspectmode:'manual', aspectratio:aspect,
+            xaxis:{title:{text:'Comprimento (m)', font:{color:TEXT_DARK_COLOR}}, showgrid:false, zeroline:false, backgroundcolor:'transparent', tickfont:{color:TEXT_DARK_COLOR}, range:[0,L_axis_max]},
+            yaxis:{title:{text:'Largura (m)', font:{color:TEXT_DARK_COLOR}}, showgrid:false, zeroline:false, backgroundcolor:'transparent', tickfont:{color:TEXT_DARK_COLOR}, range:[0,W]},
+            zaxis:{title:{text:'Altura (m)', font:{color:TEXT_DARK_COLOR}}, showgrid:false, zeroline:false, backgroundcolor:'transparent', tickfont:{color:TEXT_DARK_COLOR}, range:[0,H]},
+            camera: {
+                eye: {x: 1.5, y: 1.5, z: 0.8},
+                center: {x: 0, y: 0, z: -0.1},
+                up: {x: 0, y: 0, z: 1}
+            }
+          },
+          margin:{l:0,r:0,t:20,b:0},
+          paper_bgcolor: '#FFFFFF',
+          plot_bgcolor: '#FFFFFF',
+          font: {
+              color: TEXT_DARK_COLOR,
+              family: 'Inter, sans-serif'
+          },
+          dragmode: 'turntable'
+        };
+
+        if (typeof Plotly !== 'undefined') {
+            Plotly.newPlot('plot-area', traces, layout, {responsive:true});
+        }
+
+        return {placements, leftovers};
+    }
+
+    function buildStats(placements, leftovers, container, containerType){
+      const maxVehicleWeight = VEHICLE_DIMENSIONS[containerType].max_weight_kg;
+
+      const placedPaletes = placements.reduce((s,p)=> s + (p.stackCount||0), 0);
+      const totalPaletes = placedPaletes + leftovers.reduce((s,p)=> s + (p.stackCount||0), 0);
+      const usedVolume = placements.reduce((s,p)=> s + (p.length_m*p.width_m*p.height_m), 0);
+
+      const totalWeight = placements.reduce((s,p)=> s + (p.max_weight_kg * p.stackCount), 0);
+
+      let L_calc = container.length;
+      let W_calc = container.width;
+      let H_calc = container.height;
+      let typeName = document.getElementById("container_type").options[document.getElementById("container_type").selectedIndex].text;
+
+      if (containerType === 'rodo') {
+          const dims = VEHICLE_DIMENSIONS['rodo'];
+          L_calc = dims.L * dims.count;
+          W_calc = dims.W;
+          H_calc = dims.H;
+      }
+
+      const containerVol = L_calc * W_calc * H_calc;
+      const usagePercent = containerVol > EPSILON ? (usedVolume / containerVol) * 100 : 0;
+      const placedPercent = totalPaletes > 0 ? (placedPaletes / totalPaletes) * 100 : 0;
+      const stacksLostByArea = leftovers.filter(b => (b.blockHeight <= H_calc + EPSILON)).reduce((s,p)=> s + (p.stackCount||0), 0);
+
+      const isOverweight = totalWeight > maxVehicleWeight;
+      const weightColor = isOverweight ? DANGER_COLOR : (totalWeight > maxVehicleWeight * 0.9 ? '#ffc107' : SUCCESS_COLOR);
+
+      const newStatsHTML = `
+        <strong><i class="bi bi-bar-chart-fill"></i> Resumo Compacto (${typeName})</strong>
+
+        <div style="
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 10px;
+          margin-top: 15px;
+          text-align: center;
+          border-top: 1px solid ${BORDER_COLOR};
+          padding-top: 10px;
+        ">
+          <div>
+              <span style="font-weight: 700; color: ${PRIMARY_COLOR}; font-size: 11px;">PILHAS ALOCADAS</span>
+              <p style="margin: 3px 0; font-size: 16px; font-weight: 800; color: ${placedPercent > 80 ? SUCCESS_COLOR : '#ffc107'};">
+                  ${placedPaletes} / ${totalPaletes}
+              </p>
+              <span style="font-size: 12px; color: ${TEXT_DARK_COLOR};">${placedPercent.toFixed(1)}%</span>
+          </div>
+
+          <div style="border-left: 1px solid ${BORDER_COLOR}; padding-left: 10px;">
+              <span style="font-weight: 700; color: ${PRIMARY_COLOR}; font-size: 11px;">VOLUME UTILIZADO</span>
+              <p style="margin: 3px 0; font-size: 16px; font-weight: 800; color: ${usagePercent > 75 ? SUCCESS_COLOR : '#ffc107'};">
+                  ${usedVolume.toFixed(2)} m³
+              </p>
+              <span style="font-size: 12px; color: ${TEXT_DARK_COLOR};">${usagePercent.toFixed(1)}%</span>
+          </div>
+
+          <div style="border-left: 1px solid ${BORDER_COLOR}; padding-left: 10px;">
+              <span style="font-weight: 700; color: ${PRIMARY_COLOR}; font-size: 11px;">PESO TOTAL (Kg)</span>
+              <p style="margin: 3px 0; font-size: 16px; font-weight: 800; color: ${weightColor};">
+                  ${totalWeight.toFixed(0)} Kg
+              </p>
+              <span style="font-size: 12px; color: ${TEXT_DARK_COLOR};">Limite: ${maxVehicleWeight.toLocaleString('pt-BR')} Kg</span>
+          </div>
+        </div>
+
+        ${isOverweight ? `
+            <p style="margin: 10px 0 0 0; font-weight: 700; padding-top: 6px; color: ${DANGER_COLOR}; background-color: var(--color-danger-light); padding: 5px; border-radius: 4px; border: 1px solid ${DANGER_COLOR};">
+                <i class="bi bi-exclamation-octagon-fill"></i> <strong>ALERTA DE PESO:</strong> Limite de ${maxVehicleWeight.toLocaleString('pt-BR')} Kg <strong>EXCEDIDO</strong>!
+            </p>
+        ` : ''}
+
+        <p style="
+          margin: ${isOverweight ? '5px' : '10px'} 0 0 0;
+          font-weight: 600;
+          border-top: ${isOverweight ? 'none' : '1px dashed ' + BORDER_COLOR};
+          padding-top: 6px;
+          color: ${stacksLostByArea > 0 ? DANGER_COLOR : SUCCESS_COLOR};
+        ">
+          <i class="bi bi-exclamation-triangle-fill"></i> Sobras/Perdas de Área: ${stacksLostByArea} Pilhas
+        </p>
+      `;
+
+      document.getElementById("stats").innerHTML = newStatsHTML;
+    }
+
+    function planCargo(){
+      setLoading(true);
+
+      setTimeout(() => {
+          const containerType = document.getElementById("container_type").value;
+          let result = {placements: [], leftovers: []};
+          const products = getProductsFromTable();
+
+          const H_max = Number(document.getElementById("container_height").value)||20;
+
+          const allStacks = generatePalletStacks(products, H_max, DEFAULT_PALLET_H);
+          let container;
+
+          if (containerType === 'rodo') {
+              const dims = VEHICLE_DIMENSIONS['rodo'];
+              const semi_container = { length: dims.L, width: dims.W, height: dims.H };
+
+              const {placements: placements1, leftovers: remainingStacks} = packStacksInArea(allStacks.slice(), semi_container);
+              const {placements: placements2, leftovers: finalLeftovers} = packStacksInArea(remainingStacks, semi_container);
+
+              result = renderRodotrem3D(placements1, placements2, finalLeftovers, dims);
+              container = semi_container;
+
+          } else {
+              container = {
+                length: Number(document.getElementById("container_length").value)||20,
+                width: Number(document.getElementById("container_width").value)||20,
+                height: Number(document.getElementById("container_height").value)||20
+              };
+
+              const packingResult = packStacksInArea(allStacks, container);
+              result = renderContainer3D(packingResult, container);
+          }
+
+          buildStats(result.placements, result.leftovers, container, containerType);
+
+          setLoading(false);
+      }, 0);
+    }
+
+    // --- Event Listeners ---
+    document.getElementById("plan-btn").addEventListener("click", planCargo);
+    document.getElementById("load-sample-btn").addEventListener("click", loadSampleRows);
+    document.getElementById("download-sample").addEventListener("click", function(){
+      const csv="code,description,quantity_und,capacity_per_stack,pallet_length_m,pallet_width_m,pallet_height_m,max_stack,und_weight_kg\n"+
+                "P001,Caixa Euro 1.2x0.8,1000,50,1.2,0.8,2.4,2,15\n"+
+                "P002,Palete PBR 1.0x1.2,300,30,1.0,1.2,1.6,3,10\n"+
+                "P003,Caixa Pequena 500 und,500,100,0.6,0.4,1.2,4,2\n";
+      const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a"); a.href=url; a.download="sample_data_logiplan.csv"; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+    document.getElementById("clear-rows").addEventListener("click", clearRows);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // MODO DEMONSTRAÇÃO: carrega direto os dados de amostra locais (sem tentar acessar API/banco)
+      loadSampleRows();
+      updateContainerDimensions();
+    });
+    </script>
+</body>
+</html>
