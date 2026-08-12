@@ -62,17 +62,8 @@ A partir disso, a aplicação calcula automaticamente:
 - O algoritmo de empacotamento é uma heurística simples (grade + varredura), não um otimizador exato — ele prioriza os blocos mais altos/maiores primeiro, mas não garante o arranjo matematicamente ótimo.
 - Para uso em produção, os pontos de integração a substituir são: `loadSampleRows()` → chamada real à API/banco, e `fetchProductDetails()` → consulta real por código de produto.
 
-## Como gerar suas próprias imagens
-
-Para substituir os mockups deste README por capturas reais:
-1. Abra o arquivo `logiplan_demo.html` em um navegador (Chrome, Edge ou Firefox).
-2. Clique em "Carregar Exemplo" e depois em "Gerar Planejamento".
-3. Use a ferramenta de captura de tela do sistema, ou uma extensão de gravação de tela, para registrar o fluxo.
-4. Substitua `logiplan_mockup.png` e `logiplan_mockup.gif` pelos arquivos reais, mantendo os mesmos nomes (ou atualize os links neste README).
 
 ## Arquivos
 
-- `logiplan_demo.html` — aplicação completa (autocontida).
-- `logiplan_mockup.png` — mockup estático do resultado final.
-- `logiplan_mockup.gif` — mockup animado do fluxo de uso (4 etapas).
+- `index.html` — aplicação completa (autocontida).
 - `README.md` — este arquivo.
