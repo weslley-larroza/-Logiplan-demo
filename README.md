@@ -3,7 +3,7 @@
 Ferramenta web (HTML + JS + Plotly) para simular o **carregamento/cubagem de cargas** em veículos de transporte (carreta, Vanderleia, truck, rodo-trem) ou em espaços de armazenagem personalizados, com visualização 3D interativa e cálculo de aproveitamento de volume e peso.
 
 Esta versão está configurada em **modo demonstrativo**: não depende de nenhum backend/API — os dados de exemplo são carregados localmente, para fins de apresentação e testes.
-
+Link: https://weslley-larroza.github.io/-Logiplan-demo/
 ## Como funciona (fluxo de uso)
 
 1. **Tela inicial** — a página carrega vazia, com o painel de configuração do veículo/espaço e a tabela de produtos sem itens.
@@ -64,6 +64,7 @@ A partir disso, a aplicação calcula automaticamente:
 
 
 ## Arquivos
+Link: https://weslley-larroza.github.io/-Logiplan-demo/
 
 - `index.html` — aplicação completa (autocontida).
 - `README.md` — este arquivo.
